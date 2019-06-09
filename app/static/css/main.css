@@ -1,0 +1,19 @@
+.main{
+	z-index: 200;
+}
+body{
+	overflow: none;
+	background-color: #111;
+	color: #999;
+}
+
+.title{
+	padding-top: 100px;
+}
+
+.watermark{
+	position: fixed;
+	right: 20px;
+	top:50%;
+	z-index: 0;
+}

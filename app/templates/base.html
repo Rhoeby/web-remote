@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="{{ url_for('static', filename = 'js/jquery.min.js')}}"></script>
+  	<script src="{{ url_for('static', filename = 'js/bootstrap.bundle.min.js') }}"></script>
+
+
+  	<link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
+  	<link href="{{ url_for('static', filename = 'css/main.css')}}" rel="stylesheet">
+  	{% block head %}{% endblock %}
+	<title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+	{% block body %}{% endblock %}
+</body>
+</html>

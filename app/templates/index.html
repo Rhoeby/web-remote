@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block head %}
+<script src="{{ url_for('static', filename = 'js/main.js')}}"></script>
+
+{% endblock %} {% block title %}Rhoeby Remote{% endblock %} {% block body %}
+
+<div class="watermark">
+    <img src="{{ url_for('static', filename = 'img/watermark.png')}}" style="max-height: 70vh; opacity: 0.5;">
+</div>
+
+<div class="main">
+    <div class="title">
+        <center>
+            <img src="{{ url_for('static', filename = 'img/text.png')}}" style="max-width: 35%;">
+            <br>
+            <h1>Web Interface</h1>
+            <br><br>
+            <h5>All key presses on this page are sent to the python backend (app/views.py)</h5>
+        </center>
+    
+    </div>
+</div>
+
+
+{% endblock %}
