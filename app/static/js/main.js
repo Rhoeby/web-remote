@@ -2,7 +2,6 @@
 var pressedKeys = {}
 
 //the ajax should be changed to POST eventually but there is an issue with JQuery
-window.addEventListener('keydown',this.keydown,false);
 function keydown(e) {
 	if(e.keyCode in pressedKeys && pressedKeys[e.keyCode] == true) return;
 	
@@ -11,8 +10,23 @@ function keydown(e) {
 	
 }
 
-window.addEventListener('keyup',this.keyup,false);
 function keyup(e) {
 	pressedKeys[e.keyCode] = false
-    $.get("/keyReleased/", {"key": e.keyCode})
+	$.get("/keyReleased/", {"key": e.keyCode})
 }
+
+//on load
+$(function(){
+	window.addEventListener('keyup',this.keyup,false);
+	window.addEventListener('keydown',this.keydown,false);
+
+	$("#start_button").click(function(){
+		console.log("start")
+		f = $.get("/startNavigation/", {})
+		console.log(f)
+	})
+	$("#stop_button").click(function(){
+		console.log("stop")
+		$.get("/stopNavigation/", {})
+	})
+})

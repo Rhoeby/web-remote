@@ -1,21 +1,45 @@
 {% extends "base.html" %} {% block head %}
 <script src="{{ url_for('static', filename = 'js/main.js')}}"></script>
-
+<meta name="viewport" content="width=device-width height=device-height, initial-scale=1">
 {% endblock %} {% block title %}Rhoeby Remote{% endblock %} {% block body %}
 
 <div class="watermark">
     <img src="{{ url_for('static', filename = 'img/watermark.png')}}" style="max-height: 70vh; opacity: 0.5;">
 </div>
 
-<div class="main">
+<div class="main container" id="main">
     <div class="title">
         <center>
-            <img src="{{ url_for('static', filename = 'img/text.png')}}" style="max-width: 35%;">
-            <br>
-            <h1>Web Interface</h1>
-            <br><br>
-            <h5>All key presses on this page are sent to the python backend (app/views.py)</h5>
+            <img src="{{ url_for('static', filename = 'img/text.png')}}" class="header-img">
+
+            <h5 class="d-none d-md-block">All key presses on this page are sent to the python backend (app/views.py)</h5>
         </center>
+        <div class="row">
+        	<div class="col-md-4">
+        		<center>
+        			<button type="button" class="btn btn-primary btn-lg" id="start_button">Start Navigation</button>
+        		</center>
+        	</div>
+        	<div class="col-md-4">
+        		<center>
+        			<button type="button" class="btn btn-primary btn-lg" id="stop_button">Stop Navigation</button>
+        		</center>
+        	</div>
+        	<div class="col-md-4">
+        		<center>
+        			<a id="download_button" href="/downloadFiles/" download="map.png" target="blank">
+        				<button type="button" class="btn btn-primary btn-lg" >Download Files</button>
+        			</a>
+        			
+        		</center>
+        	</div>
+        </div>
+        <br>
+        <div class="footer">
+        	<h5>2019, Rhoeby</h5>
+        </div>
+        
+        
     
     </div>
 </div>

@@ -8,7 +8,7 @@ body{
 }
 
 .title{
-	padding-top: 100px;
+	padding-top: 10px;
 }
 
 .watermark{
@@ -16,4 +16,43 @@ body{
 	right: 20px;
 	top:50%;
 	z-index: 0;
+}
+
+.btn-primary{
+	width: 50vw;
+	height: 10vh;
+	font-size: 25px;
+	margin-top: 20px;
+	background-color: #ff6600;
+	border: 0px;
+}
+
+.header-img{
+	width: 50vw;
+}
+
+
+.footer{
+	text-align: center;
+	position: absolute;
+	bottom: 20px;
+	width: auto;
+}
+
+@media (min-width: 768px) {
+	.title{
+		padding-top: 10px;
+	}
+	.btn-primary{
+		width: 220px;
+		height: 60px;
+		font-size: 20px;
+		margin-top: 70px;
+	}
+	.header-img{
+		max-width: 40%;
+	}
+}
+.btn-primary:hover{
+	background-color: #ff7711;
 }
