@@ -15,8 +15,30 @@ def callback(data):
     '''
     subprocess.call(["rosrun", "map_server", "map_saver"], 
         cwd= IMG_PATH, stdout=open(os.devnull, 'wb'))
-    i = Image.open(os.path.join(IMG_PATH, "map.pgm"))
-    i.save(os.path.join(IMG_PATH, "map.jpg"))
+    img = Image.open(os.path.join(IMG_PATH, "map.pgm"))
+
+    radius = 1
+    center = int(img.width / 2)
+    searching = True
+    GRAY = img.getpixel((0,0))
+    #assuming that the maps are square
+    while searching and radius < center:
+        searching = False
+        for i in range(img.width):
+            region = [img.getpixel((i,radius + center)),
+                        img.getpixel((i,center - radius)),
+                        img.getpixel((radius + center, i)),
+                        img.getpixel((center - radius, i))]
+            if region != [GRAY] * 4:
+                searching = True
+        radius += 1
+
+    img = img.crop((center - radius, center - radius, center + radius, center + radius))
+
+    #resize to width 400
+    ratio = 400.0 / img.width
+    img = img.resize((int(img.width*ratio), int(img.height*ratio)))
+    img.save(os.path.join(IMG_PATH, "map.jpg"))
 
 
 
