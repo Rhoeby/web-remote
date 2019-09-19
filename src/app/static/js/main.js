@@ -20,6 +20,7 @@ window.addEventListener('keydown',this.keydown,false);
 
 //on load
 $(function(){
+	
 
 	$("#start_button").click(function(){
 		console.log("start")
@@ -33,6 +34,12 @@ $(function(){
 
 	setInterval(function(){
 		console.log("LOOP")
-		$("#map_img").attr('src', "/latestMap.jpg?" + new Date().getTime());
+		var my_image = new Image()
+		var img_url = "/latestMap.jpg?" + new Date().getTime()
+		my_image.src = img_url
+		my_image.onload = () => {
+			$("#map_img").attr('src', img_url)
+		}
 	}, 2500)
 })
+
