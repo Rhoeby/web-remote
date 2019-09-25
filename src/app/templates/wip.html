@@ -1,0 +1,100 @@
+{% extends "base.html" %} {% block head %}
+<meta name="viewport" content="width=device-width height=device-height, initial-scale=1">
+{% endblock %} {% block title %}Rhoeby Remote{% endblock %} {% block body %}
+
+<div class="watermark">
+    <img src="{{ url_for('static', filename = 'img/watermark.png')}}" style="max-height: 70vh; opacity: 0.5;">
+</div>
+<div class="main-container container" id="app">
+    <div class="title">
+        <div class="row">
+            <div class="col-6">
+                <img src="{{ url_for('static', filename = 'img/text.png')}}" class="header-img">
+            </div>
+            <div class="col-6">
+                <div class="float-right">
+                    
+                    <i :class="battery" style="font-size: 50px;"></i>
+                    <p>${battery_percentage}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="control" id="control">
+        <div id="start"  v-if="mode == mode_enum.start">
+            <div class="middle">
+                <center>
+                    <button type="button" @click="mode=mode_enum.run" class="btn btn-primary btn-lg">Start Navigation</button>
+                </center>
+            </div>
+            <br>
+            <div class="bottom">
+                <div class="row">
+                    <div class="col-4 col-md-3">
+                        <p class="bold">Captured Runs (${past_runs.length}):</p>
+                    </div>
+                    <div class="col-5 offset-3 col-md-4 offset-md-5">
+                        <a href="#">
+                            <i class="fas fa-download"></i> Download All
+                        </a>
+                        <a href="#" style="padding-left: 10px;">
+                            <i class="fas fa-trash"></i> Delete All
+                        </a>
+                    </div>
+                </div>
+                <!-- template for vue.js -->
+                <div class="row">
+                    <table class="table">
+                        <tbody>
+                            <tr v-for="run in past_runs">
+                              <th scope="row">${ run.name }</th>
+                              <td>${run.date} / ${run.length}</td>
+                              <td>
+                              	<a href="#" >
+                                    <i class="fas fa-play"></i>
+                                </a>
+                                <a href="#" style="padding-left: 30px;">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <a href="#" style="padding-left: 30px;">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                              </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="run"  v-if="mode == mode_enum.run">
+            <div class="middle">
+                <center>
+                    <p id="timer">Running... time</p>
+                    <button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="mode=mode_enum.pause">Pause Navigation</button>
+                </center>
+            </div>
+
+            <div class="bottom">
+               <center>
+                    <img src="{{ url_for('static', filename = 'map.jpg')}}" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
+                </center>
+            </div>
+        </div>
+        <div id="pause" v-if="mode == mode_enum.pause">
+        	<h1>Paused</h1>
+        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="mode=mode_enum.run">Resume Navigation</button>
+        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="mode=mode_enum.start">End Navigation</button>
+        </div>
+
+    </div>
+    <br><br><br><br>
+    	<center>
+	    	<p v-if="robot_name != null">Connected to ${robot_name}</p>
+	        <p v-else>Disconnected! Trying to reconnect...</p>
+    	</center>
+</div>
+
+</body>
+<script src="{{ url_for('static', filename = 'js/wip.js')}}"></script>
+{% endblock %}

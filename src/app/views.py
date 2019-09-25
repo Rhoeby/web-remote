@@ -19,8 +19,15 @@ def shutdown():
 def index():
 	return render_template("index.html")
 
+@app.route('/wip/')
+def wip():
+	return render_template("wip.html")
+
+
 @app.route('/keyPressed/')
 def key_pressed():
+	if current_app.config['NO_ROBOT']:
+		return jsonify({})
 	key = int(request.args.get("key"))
 	print("KEY PRESSED: ", key)
 	if key == 37:

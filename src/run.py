@@ -1,9 +1,13 @@
 #!/usr/bin/env python
-global rospy
-import rospy, requests, subprocess, os, math, numpy
-from std_msgs.msg import String
-from nav_msgs.msg import OccupancyGrid
-from app import app, robot_control
+NO_ROBOT=True
+if not NO_ROBOT:
+	global rospy
+	import rospy
+	from std_msgs.msg import String
+	from nav_msgs.msg import OccupancyGrid
+	from app import robot_control
+import requests, subprocess, os, math, numpy
+from app import app
 from PIL import Image 
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -67,12 +71,16 @@ def listener():
 	'''
 	Starts the web server and a listener for map updates.
 	'''
-	print("initializing node...")
-	rospy.init_node('listener', anonymous=True)
-	rospy.Subscriber("map", OccupancyGrid, callback)
+	if NO_ROBOT:
+		app.config['NO_ROBOT'] = True
+	else:
+		print("initializing node...")
+		rospy.init_node('listener', anonymous=True)
+		rospy.Subscriber("map", OccupancyGrid, callback)
 
-	print("starting server...")
-	app.config['controller'] = robot_control.turty_controller()
+		print("starting server...")
+		app.config['controller'] = robot_control.turty_controller()
+		app.controller['NO_ROBOT'] = False
 	app.run(host='0.0.0.0', use_reloader=False)
 	
 def shutdownServer():
@@ -85,7 +93,8 @@ def shutdownServer():
 		pass
 
 if __name__ == '__main__':
-	rospy.on_shutdown(shutdownServer)
+	if not NO_ROBOT:
+		rospy.on_shutdown(shutdownServer)
 	listener()
 	
 
