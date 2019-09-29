@@ -13,6 +13,10 @@ from PIL import Image
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 IMG_PATH = os.path.join(DIR_PATH, "app/static/img")
 
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 def convert_img(d):
 	if d == -1:
 		return 170

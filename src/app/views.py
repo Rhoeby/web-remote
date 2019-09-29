@@ -48,14 +48,46 @@ def key_released():
 	print("KEY RELEASED: ", key)
 	return jsonify({})
 	
+
+@app.route('/loadData/')
+def loadData():
+	print("Page Loaded")
+	data = {
+		'battery_percentage': 88,
+		'robot_name': "turty3_pro",
+		'past_runs': [
+
+		]
+	}
+	for i in range(6):
+		data['past_runs'].append({
+			"name": "run" + str(i),
+			"path": "/path/to/run_" + str(i),
+			"date": "2019-09-0" + str(i),
+			"length": "8:" + str(i) + str(i),
+			})
+	return jsonify(data)
+
+
 @app.route('/startNavigation/')
 def start_nav():
 	print("START NAV")
 	return jsonify({})
 	
-@app.route('/stopNavigation/')
-def stop_nav():
-	print("STOP NAV")
+@app.route('/pauseNavigation/')
+def pause_nav():
+	print("PAUSE NAV")
+	return jsonify({})
+
+@app.route('/saveNavigation/')
+def save_nav():
+	location = request.args.get("location")
+	print("SAVE NAV", location)
+	return jsonify({})
+	
+@app.route('/discardNavigation/')
+def discard_nav():
+	print("DISCARD NAV")
 	return jsonify({})
 
 @app.route('/downloadFiles/')
@@ -63,6 +95,8 @@ def downloadFiles():
 	path = "static/img/map.jpg"
 	print("sending files from", path)
 	return send_file(path)
+
+
 @app.route('/latestMap.jpg')
 def latestMap():
 	path = "static/img/map.jpg"

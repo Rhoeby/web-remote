@@ -5,13 +5,19 @@
 <div class="watermark">
     <img src="{{ url_for('static', filename = 'img/watermark.png')}}" style="max-height: 70vh; opacity: 0.5;">
 </div>
-<div class="main-container container" id="app">
+<div id="app">
+<div class="main-container container">
     <div class="title">
         <div class="row">
-            <div class="col-6">
-                <img src="{{ url_for('static', filename = 'img/text.png')}}" class="header-img">
+            <div class="col-4">
+                <i class="fas fa-power-off" style="font-size: 50px;"></i>
             </div>
-            <div class="col-6">
+            <div class="col-4">
+            	<center>
+                	<img src="{{ url_for('static', filename = 'img/text.png')}}" class="header-img">
+            	</center>
+            </div>
+            <div class="col-4">
                 <div class="float-right">
                     
                     <i :class="battery" style="font-size: 50px;"></i>
@@ -24,7 +30,7 @@
         <div id="start"  v-if="mode == mode_enum.start">
             <div class="middle">
                 <center>
-                    <button type="button" @click="mode=mode_enum.run" class="btn btn-primary btn-lg">Start Navigation</button>
+                    <button type="button" @click="startNav" class="btn btn-primary btn-lg">Start Navigation</button>
                 </center>
             </div>
             <br>
@@ -70,31 +76,83 @@
         <div id="run"  v-if="mode == mode_enum.run">
             <div class="middle">
                 <center>
-                    <p id="timer">Running... time</p>
-                    <button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="mode=mode_enum.pause">Pause Navigation</button>
+                    <h2 id="timer">Running... ${runningTimer}</h2>
+                    <button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="pauseNav()">Pause Navigation</button>
                 </center>
             </div>
 
             <div class="bottom">
                <center>
-                    <img src="{{ url_for('static', filename = 'map.jpg')}}" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
+                    <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
                 </center>
             </div>
         </div>
         <div id="pause" v-if="mode == mode_enum.pause">
-        	<h1>Paused</h1>
-        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="mode=mode_enum.run">Resume Navigation</button>
-        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="mode=mode_enum.start">End Navigation</button>
+        	<div class="row">
+        		<div class="col-12">
+        			
+		        	<center>
+		        	<h2>Paused... ${runningTimer}</h2>
+		        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="startNav()">Resume Navigation</button>
+		        	</center>
+		        	<div class="mapPreview">
+		               <center>
+		                    <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
+		                </center>
+		            </div>
+        		</div>
+        	</div>
+            <div class="row">
+            	<div class="col-md-4 offset-md-1 offset-lg-2">
+            		<center>
+            			<button type="button" class="btn btn-primary btn-lg" id="pause_button" data-toggle="modal" data-target="#exampleModalCenter">End Run & Save</button>
+            		</center>
+            	</div>
+            	<div class="col-md-4 offset-md-1 offset-lg-0">
+            		<center>
+            			<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="discardNav()">End Run & Discard</button>
+            		</center>
+            	</div>
+            </div>
+        	
         </div>
 
     </div>
-    <br><br><br><br>
-    	<center>
-	    	<p v-if="robot_name != null">Connected to ${robot_name}</p>
-	        <p v-else>Disconnected! Trying to reconnect...</p>
-    	</center>
 </div>
 
+    	<footer class="footer">
+    	<div class="container text-center">
+	    	<p v-if="robot_name != null">Connected to ${robot_name}</p>
+	        <p v-else>Disconnected! Trying to reconnect...</p>
+    	</div>
+    	</footer>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Some Additional Info...</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+		  <div class="form-group">
+		    <label for="location">Location Name</label>
+		    <input type="text" class="form-control" id="locationName" v-model="locationNameInput" aria-describedby="locationHelp" placeholder="Enter location Name">
+		  </div>
+		</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="saveNav()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
 </body>
 <script src="{{ url_for('static', filename = 'js/wip.js')}}"></script>
 {% endblock %}
