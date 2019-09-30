@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block head %}
 <meta name="viewport" content="width=device-width height=device-height, initial-scale=1">
+<link href="{{ url_for('static', filename = 'css/enable.css')}}" rel="stylesheet">
 {% endblock %} {% block title %}Rhoeby Remote{% endblock %} {% block body %}
 
 <div class="watermark">
@@ -12,10 +13,7 @@
             <div class="col-4">
                 <i class="fas fa-power-off" style="font-size: 50px;"></i>
             </div>
-            <div class="col-4">
-            	<center>
-                	<img src="{{ url_for('static', filename = 'img/text.png')}}" class="header-img">
-            	</center>
+            <div class="col-4 header-img" style=" ">
             </div>
             <div class="col-4">
                 <div class="float-right">
@@ -105,28 +103,29 @@
             <div class="row">
             	<div class="col-md-4 offset-md-1 offset-lg-2">
             		<center>
-            			<button type="button" class="btn btn-primary btn-lg" id="pause_button" data-toggle="modal" data-target="#exampleModalCenter">End Run & Save</button>
+            			<button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" data-target="#exampleModalCenter">End Run & Save</button>
             		</center>
             	</div>
             	<div class="col-md-4 offset-md-1 offset-lg-0">
             		<center>
-            			<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="discardNav()">End Run & Discard</button>
+            			<button type="button" class="btn btn-primary btn-lg cancel-btn" id="pause_button" @click="discardNav()">End Run & Discard</button>
             		</center>
             	</div>
             </div>
         	
         </div>
 
+
+    	
+    	<div class="navbar fixed-bottom">
+    		<a class="navbar-brand"><div class="rhoeby-icon-small"></div>test</a>
+    		<span class="navbar-text">Connected</span>
+    	</div>
+
     </div>
 </div>
 
-    	<footer class="footer">
-    	<div class="container text-center">
-	    	<p v-if="robot_name != null">Connected to ${robot_name}</p>
-	        <p v-else>Disconnected! Trying to reconnect...</p>
-    	</div>
-    	</footer>
-
+    
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">

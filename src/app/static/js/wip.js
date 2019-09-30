@@ -24,7 +24,7 @@ var app = new Vue({
   		//returns the correct icon based on battery percentage
   		if (this.battery_percentage > 90) return "fas fa-battery-full"
   		if (this.battery_percentage > 65) return "fas fa-battery-three-quarters"
-  		if (this.battery_percentage > 32) return "fas fa-battery-half"
+  		if (this.battery_percentage > 36) return "fas fa-battery-half"
   		if (this.battery_percentage > 10) return "fas fa-battery-quarter"
   		return "fas fa-battery-empty"
   	},
