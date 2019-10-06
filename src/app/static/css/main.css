@@ -16,6 +16,7 @@ body{
 	right: 20px;
 	top:50%;
 	z-index: -10;
+
 }
 
 .btn-primary{
@@ -26,18 +27,38 @@ body{
 	background-color: #ff6600;
 	border: 0px;
 }
-
+.btn-primary:hover{
+	background-color: #ff7711;
+}
+.cancel-btn{
+	background-color: #f33;
+}
+.cancel-btn:hover{
+	background-color: #f44;
+}
+.confirm-btn{
+	background-color: #4d4;
+}
+.confirm-btn:hover{
+	background-color: #5d5;
+}
 .header-img{
 	width: 130px;
+	background-image: url('/static/img/text.png');
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+.rhoeby-icon-small{
+	background-image: url('/static/img/watermark.png');
+	width: 38px;
+	height: 38px;
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	
 }
 
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 40px; /* Set the fixed height of the footer here */
-}
 
 
 @media (min-width: 768px) {
@@ -52,9 +73,6 @@ body{
 	.header-img{
 		max-width: 40%;
 	}
-}
-.btn-primary:hover{
-	background-color: #ff7711;
 }
 
 tr{

@@ -1,0 +1,65 @@
+
+body{
+	overflow: none;
+	background-color: #f9f9f9;
+	color: #111;
+}
+
+.watermark{
+	display: none;
+}
+
+.btn-primary{
+	background-color: #2d2;
+	border: 0px;
+}
+.btn-primary:hover{
+	background-color: #3e3;
+}
+.cancel-btn{
+	background-color: #33e;
+}
+.cancel-btn:hover{
+	background-color: #44f;
+}
+.confirm-btn{
+	background-color: #4d4;
+}
+.confirm-btn:hover{
+	background-color: #5d5;
+}
+.header-img{
+	width: 130px;
+	background-image: url('/static/img/enable_logo.svg');
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+
+
+
+@media (min-width: 768px) {
+	.title{
+		padding-top: 10px;
+	}
+	.btn-primary{
+		width: 220px;
+		height: 60px;
+		font-size: 20px;
+	}
+	.header-img{
+		max-width: 40%;
+	}
+}
+
+tr{
+	color: #111;
+}
+
+i{
+	color: #111;
+}
+a{
+	color: #111;
+}
