@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # JJ
 #NO_ROBOT=True
-NO_ROBOT=False
+NO_ROBOT=True
 if not NO_ROBOT:
     global rospy
     import rospy

@@ -38,7 +38,7 @@
                         <p class="bold">Captured Runs (${past_runs.length}):</p>
                     </div>
                     <div class="col-5 offset-3 col-md-4 offset-md-5">
-                        <a href="#">
+                        <a href="/downloadFiles/">
                             <i class="fas fa-download"></i> Download All
                         </a>
                         <a href="#" style="padding-left: 10px;">
@@ -54,13 +54,13 @@
                               <th scope="row">${ run.name }</th>
                               <td>${run.date} / ${run.length}</td>
                               <td>
-                              	<a href="#" >
+                              	<a href="#"  data-toggle="modal" data-target="#videoPreviewModal" @click="previewVideo(run)">
                                     <i class="fas fa-play"></i>
                                 </a>
-                                <a href="#" style="padding-left: 30px;">
+                                <a  :href="'/downloadFiles?run=' + run.name" download="map.png" target="blank" style="padding-left: 30px;">
                                     <i class="fas fa-download"></i>
                                 </a>
-                                <a href="#" style="padding-left: 30px;">
+                                <a href="#" data-toggle="modal" data-target="#deleteModal" @click="itemToDelete=run.name" style="padding-left: 30px;">
                                     <i class="fas fa-trash"></i>
                                 </a>
                               </td>
@@ -103,7 +103,7 @@
             <div class="row">
             	<div class="col-md-4 offset-md-1 offset-lg-2">
             		<center>
-            			<button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" data-target="#exampleModalCenter">End Run & Save</button>
+            			<button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" data-target="#saveConfirmmodalCenter">End Run & Save</button>
             		</center>
             	</div>
             	<div class="col-md-4 offset-md-1 offset-lg-0">
@@ -118,21 +118,20 @@
 
     	
     	<div class="navbar fixed-bottom">
-    		<a class="navbar-brand"><div class="rhoeby-icon-small"></div>test</a>
+    		<a class="navbar-brand" style="font-size: 12px;"><div class="rhoeby-icon-small"></div>Powered by Rhoeby Dynamics</a>
     		<span class="navbar-text">Connected</span>
     	</div>
 
     </div>
 </div>
-
-    
+=
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="saveConfirmmodalCenter" tabindex="-1" role="dialog" aria-labelledby="saveConfirmmodalCenterTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">Some Additional Info...</h5>
+        <h5 class="modal-title" id="saveConfirmmodalLongTitle">Some Additional Info...</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -151,6 +150,49 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="videoPreviewModal" tabindex="-1" role="dialog" aria-labelledby="videoPreviewModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Video Preview</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+
+            <div align="center" class="embed-responsive embed-responsive-16by9" id="player">
+               
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirm Delete</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+    
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" @click="deleteData(itemToDelete)" data-dismiss="modal">Delete ${itemToDelete}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
 </div>
 </body>
 <script src="{{ url_for('static', filename = 'js/wip.js')}}"></script>

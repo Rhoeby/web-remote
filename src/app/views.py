@@ -1,9 +1,9 @@
 
 # A very simple Flask Hello World app for you to get started with...
 
-import subprocess
-import signal
-import os
+import subprocess, signal, os, time, json, zipfile, shutil
+
+DATA_PATH = "app/static/data"
 
 from flask import render_template, send_file, request, jsonify, current_app, request
 from app import app
@@ -56,6 +56,7 @@ def key_released():
 @app.route('/loadData/')
 def loadData():
     print("Page Loaded")
+   
     data = {
         'battery_percentage': 88,
         'robot_name': "turty3_pro",
@@ -63,13 +64,16 @@ def loadData():
 
         ]
     }
-    for i in range(6):
-        data['past_runs'].append({
-            "name": "run" + str(i),
-            "path": "/path/to/run_" + str(i),
-            "date": "2019-09-0" + str(i),
-            "length": "8:" + str(i) + str(i),
-            })
+    for folder in os.listdir(DATA_PATH):
+
+        path = os.path.join(DATA_PATH, folder)
+        with open(os.path.join(path, "info.json")) as f:
+            jsonData = json.load(f)
+            data['past_runs'].append({
+                "name": folder,
+                "date": time.ctime(os.path.getmtime(path)),
+                "length": jsonData["runningTime"],
+                })
     return jsonify(data)
 
 
@@ -93,6 +97,7 @@ def pause_nav():
 def save_nav():
     location = request.args.get("location")
     print("SAVE NAV", location)
+    #call another module to save the data
 
     return jsonify({})
     
@@ -105,16 +110,32 @@ def discard_nav():
     os.kill(pid, signal.SIGINT)
 
     if not current_app.config['explore_process'].poll():
-        print "Process correctly halted"
+        print ("Process correctly halted")
 
     return jsonify({})
 
 @app.route('/downloadFiles/')
 def downloadFiles():
-    path = "static/img/map.jpg"
-    print("sending files from", path)
-    return send_file(path)
+    
+    name = request.args.get("run")
+    if name is not None:
+        print("name")
+        path = DATA_PATH + "/" + name 
+    else:
+        name = "data"
+        path = DATA_PATH 
+    print("DOWNLOAD", name)
+    shutil.make_archive("app/static/temp/data", 'zip', path)
 
+    return send_file("static/temp/data.zip", as_attachment=True, attachment_filename=name + ".zip")
+@app.route("/deleteData/")
+def deleteData():
+    
+    name = request.args.get("name")
+    print("DELETE", name)
+    shutil.rmtree(DATA_PATH + "/" + name)
+    return jsonify({})
+   
 
 @app.route('/latestMap.jpg')
 def latestMap():

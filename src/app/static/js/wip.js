@@ -17,6 +17,7 @@ var app = new Vue({
     timerStarted: null,
     imageRefreshRate: 1000,
     locationNameInput: "",
+    itemToDelete: "",
 
   },
   computed: {
@@ -63,6 +64,7 @@ var app = new Vue({
         this.locationNameInput = ""
         this.timerBase = 0;
         this.mode = this.mode_enum.start
+        this.loadData()
     },
     discardNav: function(){
         $.get("/discardNavigation")
@@ -70,20 +72,35 @@ var app = new Vue({
         this.mode = this.mode_enum.start
     },
 
-    setup: function(){
-        console.log("setup")
+    loadData: function(){
+        console.log("loadData")
         var self = this
         $.get("/loadData/", function(data){
-            console.log(data)
+            //console.log(data)
             self.battery_percentage = data.battery_percentage
             self.past_runs = data.past_runs
             self.robot_name = data.robot_name
         })
-    }
+    },
+    previewVideo: function(run){
+      previewSource = '/static/data/'+ run.name + '/video.mp4'
+      htmlCode = '<video controls class="embed-responsive-item" id="preview_video">' +
+      '<source src="' + previewSource + '" >' + 
+      '</video>'
+      $("#player").html(htmlCode)
+    },
+    deleteData: function(item){
+      var self = this
+      $.get("/deleteData", {
+        name: item,
+      }).then(function(){
+        self.loadData()
+      })
+    },
 
   },
   beforeMount(){
-    this.setup()
+    this.loadData()
   }
 })
 
