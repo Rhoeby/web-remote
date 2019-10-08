@@ -56,15 +56,20 @@ var app = new Vue({
         this.timerStarted = null
         this.mode = this.mode_enum.pause
     },
+    focusModal: function(){
+      $('#locationName').focus()
+
+    },
     saveNav: function(){
         var self=this
         $.get("/saveNavigation", {
             location: self.locationNameInput,
+        }, function(){
+          this.locationNameInput = ""
+          this.timerBase = 0;
+          this.mode = this.mode_enum.start
+          this.loadData()
         })
-        this.locationNameInput = ""
-        this.timerBase = 0;
-        this.mode = this.mode_enum.start
-        this.loadData()
     },
     discardNav: function(){
         $.get("/discardNavigation")
@@ -83,7 +88,7 @@ var app = new Vue({
         })
     },
     previewVideo: function(run){
-      previewSource = '/static/data/'+ run.name + '/video.h264'
+      previewSource = '/static/data/'+ run.name + '/video.mp4'
       htmlCode = '<video controls class="embed-responsive-item" id="preview_video">' +
       '<source src="' + previewSource + '" >' + 
       '</video>'

@@ -116,23 +116,33 @@ def save_nav():
         kill_explore()
 
     #wait for the file to appear in the /static/temp
+    TEMP_PATH = "app/static/temp/latestRun"
     searching = True
+    timeout = 0
     while searching:
-        if "video.mp4" in os.listdir("app/static/temp/latestRun"):
-            file = VideoFileClip("app/static/temp/latestRun/video.mp4")
+        if "video.mp4" in os.listdir(TEMP_PATH):
+            file = VideoFileClip(TEMP_PATH + "/video.mp4")
             data = {"runningTime": file.duration}
-            with open('app/static/temp/latestRun/info.json', 'w') as f:
+            with open(TEMP_PATH + '/info.json', 'w') as f:
                 json.dump(data, f)
+            
+            #close moviePy file
+            del file.reader
+            del file
 
-            #os.makedirs(DATA_PATH + "/" + location)
-            shutil.copytree("app/static/temp/latestRun/", DATA_PATH + "/" + location)
-            shutil.rmtree("app/static/temp/latestRun/")
-            os.makedirs("app/static/temp/latestRun/")
+            #copy data to new directory
+            shutil.copytree(TEMP_PATH, DATA_PATH + "/" + location)
+            #delete files from temp folder
+            for file in os.listdir(TEMP_PATH):
+                os.unlink(TEMP_PATH + "/" + file)
+
             searching = False
         else:
+            timeout = timeout + 1
+            if timeout > 100:
+                searching = False
             time.sleep(0.1)
-            print("searching")
-
+    print("saved Nav!")
     return jsonify({})
     
 @app.route('/discardNavigation/')

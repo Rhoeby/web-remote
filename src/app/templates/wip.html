@@ -103,7 +103,7 @@
             <div class="row">
             	<div class="col-md-4 offset-md-1 offset-lg-2">
             		<center>
-            			<button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" data-target="#saveConfirmmodalCenter">End Run & Save</button>
+            			<button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" @click="focusModal()" data-target="#saveConfirmmodalCenter">End Run & Save</button>
             		</center>
             	</div>
             	<div class="col-md-4 offset-md-1 offset-lg-0">
@@ -137,12 +137,10 @@
         </button>
       </div>
       <div class="modal-body">
-        <form>
 		  <div class="form-group">
 		    <label for="location">Location Name</label>
-		    <input type="text" class="form-control" id="locationName" v-model="locationNameInput" aria-describedby="locationHelp" placeholder="Enter location Name">
+		    <input type="text" v-on:keyup.enter="saveNav()" class="form-control" id="locationName" v-model="locationNameInput" aria-describedby="locationHelp" placeholder="Enter location Name">
 		  </div>
-		</form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-dismiss="modal" @click="saveNav()">Save changes</button>
