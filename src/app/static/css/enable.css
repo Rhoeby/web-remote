@@ -63,3 +63,10 @@ i{
 a{
 	color: #111;
 }
+
+.red-btn{
+	background-color: #f33;
+}
+.red-btn:hover{
+	background-color: #f44;
+}

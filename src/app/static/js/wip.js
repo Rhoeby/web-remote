@@ -83,7 +83,7 @@ var app = new Vue({
         })
     },
     previewVideo: function(run){
-      previewSource = '/static/data/'+ run.name + '/video.mp4'
+      previewSource = '/static/data/'+ run.name + '/video.h264'
       htmlCode = '<video controls class="embed-responsive-item" id="preview_video">' +
       '<source src="' + previewSource + '" >' + 
       '</video>'

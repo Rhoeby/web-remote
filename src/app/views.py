@@ -2,6 +2,7 @@
 # A very simple Flask Hello World app for you to get started with...
 
 import subprocess, signal, os, time, json, zipfile, shutil
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 DATA_PATH = "app/static/data"
 
@@ -110,8 +111,27 @@ def save_nav():
     print("SAVE NAV", location)
     
     # JJ 
-    current_app.config['controller'].set_paused(False)
-    kill_explore()
+    if not current_app.config['NO_ROBOT']:
+        current_app.config['controller'].set_paused(False)
+        kill_explore()
+
+    #wait for the file to appear in the /static/temp
+    searching = True
+    while searching:
+        if "video.mp4" in os.listdir("app/static/temp/latestRun"):
+            file = VideoFileClip("app/static/temp/latestRun/video.mp4")
+            data = {"runningTime": file.duration}
+            with open('app/static/temp/latestRun/info.json', 'w') as f:
+                json.dump(data, f)
+
+            #os.makedirs(DATA_PATH + "/" + location)
+            shutil.copytree("app/static/temp/latestRun/", DATA_PATH + "/" + location)
+            shutil.rmtree("app/static/temp/latestRun/")
+            os.makedirs("app/static/temp/latestRun/")
+            searching = False
+        else:
+            time.sleep(0.1)
+            print("searching")
 
     return jsonify({})
     

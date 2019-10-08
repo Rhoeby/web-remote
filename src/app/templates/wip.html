@@ -75,7 +75,7 @@
             <div class="middle">
                 <center>
                     <h2 id="timer">Running... ${runningTimer}</h2>
-                    <button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="pauseNav()">Pause Navigation</button>
+                    <button type="button" class="btn btn-primary btn-lg red-btn" id="pause_button" @click="pauseNav()"><i class="fas fa-pause" style="color: #eee; padding-right: 5px;"></i>Pause Navigation</button>
                 </center>
             </div>
 
@@ -91,7 +91,7 @@
         			
 		        	<center>
 		        	<h2>Paused... ${runningTimer}</h2>
-		        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="startNav()">Resume Navigation</button>
+		        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="startNav()"><i class="fas fa-play" style="color: #eee; padding-right: 5px;"></i>Resume</button>
 		        	</center>
 		        	<div class="mapPreview">
 		               <center>

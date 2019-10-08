@@ -36,6 +36,12 @@ body{
 .cancel-btn:hover{
 	background-color: #f44;
 }
+.red-btn{
+	background-color: #f33;
+}
+.red-btn:hover{
+	background-color: #f44;
+}
 .confirm-btn{
 	background-color: #4d4;
 }

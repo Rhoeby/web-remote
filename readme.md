@@ -8,7 +8,7 @@ At the moment, the buttons to start/stop navigation on the website are essential
 This requires some version of Python with flask and pillow installed.
 ```sh
 sudo apt-get install python-pip
-sudo pip install flask Pillow requests
+sudo pip install flask Pillow requests moviepy
 source /home/ubuntu/catkin_ws/devel/setup.bash
 chmod +x src/run.py   #may be required to execute the run.py
 rosrun web_remote run.py
