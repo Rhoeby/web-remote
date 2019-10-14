@@ -1,10 +1,11 @@
-
 # A very simple Flask Hello World app for you to get started with...
 
 import subprocess, signal, os, time, json, zipfile, shutil
 from moviepy.video.io.VideoFileClip import VideoFileClip
 
-DATA_PATH = "app/static/data"
+# JJ - app is run from home directory, so we need the path to be relative to that
+#DATA_PATH = "app/static/data"
+DATA_PATH = "catkin_ws/src/web_remote/src/app/static/data"
 
 from flask import render_template, send_file, request, jsonify, current_app, request
 from app import app
@@ -92,7 +93,7 @@ def start_nav():
         print ("Robot controller was NOT PAUSED, starting explore_process now")
         devnull = open('/dev/null', 'w')
         #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh"], stdout=devnull, shell=False)
-        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh"], shell=False)
+        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
 
     return jsonify({})
     
@@ -116,11 +117,15 @@ def save_nav():
         kill_explore()
 
     #wait for the file to appear in the /static/temp
-    TEMP_PATH = "app/static/temp/latestRun"
+# JJ - app is run from home directory, so we need the path to be relative to that
+#    TEMP_PATH = "app/static/temp/latestRun"
+    TEMP_PATH = "catkin_ws/src/web_remote/src/app/static/temp/latestRun"
     searching = True
     timeout = 0
     while searching:
         if "video.mp4" in os.listdir(TEMP_PATH):
+            '''
+            JJ
             file = VideoFileClip(TEMP_PATH + "/video.mp4")
             data = {"runningTime": file.duration}
             with open(TEMP_PATH + '/info.json', 'w') as f:
@@ -129,19 +134,37 @@ def save_nav():
             #close moviePy file
             del file.reader
             del file
+            
+            #copy data to new directory
+            print("Copying data...")
+            shutil.copytree(TEMP_PATH, DATA_PATH + "/" + location)
+            #delete files from temp folder
+            for file in os.listdir(TEMP_PATH):
+                os.unlink(TEMP_PATH + "/" + file)
+            
+            '''
+            data = {"runningTime": 15.00}
+            with open(TEMP_PATH + '/info.json', 'w') as f:
+                json.dump(data, f)
 
             #copy data to new directory
+            print("Copying data...")
             shutil.copytree(TEMP_PATH, DATA_PATH + "/" + location)
             #delete files from temp folder
             for file in os.listdir(TEMP_PATH):
                 os.unlink(TEMP_PATH + "/" + file)
 
+            # JJ - copy the map
+            shutil.copy("catkin_ws/src/web_remote/src/app/static/img/map.jpg", DATA_PATH + "/" + location)
+
             searching = False
         else:
+            print("Waiting for video.mp4...")
             timeout = timeout + 1
-            if timeout > 100:
+            if timeout > 10:
+                print("Timed out waiting for video.mp4!")
                 searching = False
-            time.sleep(0.1)
+            time.sleep(1.0)
     print("saved Nav!")
     return jsonify({})
     
@@ -166,9 +189,12 @@ def downloadFiles():
         name = "data"
         path = DATA_PATH 
     print("DOWNLOAD", name)
-    shutil.make_archive("app/static/temp/data", 'zip', path)
+    # JJ
+    #shutil.make_archive("app/static/temp/data", 'zip', path)
+    shutil.make_archive("catkin_ws/src/web_remote/src/app/static/temp/data", 'zip', path)
 
     return send_file("static/temp/data.zip", as_attachment=True, attachment_filename=name + ".zip")
+
 @app.route("/deleteData/")
 def deleteData():
     
