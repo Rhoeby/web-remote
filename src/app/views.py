@@ -93,7 +93,9 @@ def start_nav():
         print ("Robot controller was NOT PAUSED, starting explore_process now")
         devnull = open('/dev/null', 'w')
         #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh"], stdout=devnull, shell=False)
+        # JJ - fast - reverted
         current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
+        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)
 
     return jsonify({})
     
