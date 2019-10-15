@@ -87,6 +87,7 @@ def start_nav():
     print("START NAV")
     current_app.config['state'] = "run"
     current_app.config['timer'].reset()
+    current_app.config['loading'] = False
 
     if not current_app.config['NO_ROBOT']:
         # JJ
@@ -97,9 +98,10 @@ def start_nav():
             print ("Robot controller was NOT PAUSED, starting explore_process now")
             devnull = open('/dev/null', 'w')
             #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh"], stdout=devnull, shell=False)
+            # JJ - fast - reverted
             current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
+            #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)    return jsonify({})
     return jsonify({})
-    
 @app.route('/pauseNavigation/')
 def pause_nav():
     print("PAUSE NAV")
@@ -120,23 +122,21 @@ def resume_nav():
 
 @app.route('/navigationStatus/')
 def nav_Status():
-    loading = True
-    run_ended = False
     loading_msg = "Warming up the Robot..."
 
     if not current_app.config['NO_ROBOT']:
         #robot control code goes here
         pass
 
-    if run_ended:
+    if current_app.config['run_ended']:
         current_app.config['state'] = "end"
 
 
 
     return jsonify({
         "state": current_app.config['state'],
-        "loading": loading,
-        "run_ended": run_ended,
+        "loading": current_app.config['loading'],
+        "run_ended": current_app.config['run_ended'],
         "loading_msg": loading_msg,
         "timerStarted": current_app.config['timer'].startTimeStamp(),
         "deltaTime": current_app.config['timer'].get_current_time(),

@@ -37,7 +37,10 @@ class turty_controller:
 
     # JJ
     def get_paused (self):
-        return self.status
+        if self.status == 0:
+            return False
+        else:
+            return True
 
     def talker(self):
         rate = rospy.Rate(10) # 10hz
