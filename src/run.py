@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # JJ
-#NO_ROBOT=True
-NO_ROBOT=False
+NO_ROBOT=True
+#NO_ROBOT=False
 if not NO_ROBOT:
     global rospy
     import rospy
@@ -185,6 +185,38 @@ def callback(data):
     # JJ
     print(datetime.datetime.now())
 
+class timer:
+    def __init__(self):
+        self.startTime = None
+        self.deltaTime = datetime.timedelta(0)
+    def reset(self):
+        self.startTime = datetime.datetime.now()
+        self.deltaTime = datetime.timedelta(0)
+
+
+    def pause(self):
+        if self.startTime is None:
+            return
+        self.deltaTime = self.deltaTime + datetime.datetime.now() - self.startTime
+        self.startTime = None
+    def resume(self):
+        if self.startTime != None:
+            raise Exception("bad state")
+        self.startTime = datetime.datetime.now()
+    def stop(self):
+        self.startTime = None
+        self.deltaTime = datetime.timedelta(0)
+    def get_current_time(self):
+        if self.startTime is None:
+            temptime = self.deltaTime
+        else:
+            temptime = self.deltaTime + datetime.datetime.now() - self.startTime
+        return temptime.total_seconds()
+        
+    def startTimeStamp(self):
+        return self.startTime.timestamp() if self.startTime is not None else None
+    def deltaTimeStamp(self):
+        return self.deltaTime.total_seconds() if self.deltaTime is not None else 0
 
 def resize_image_raw(img, width, new_width):
 
@@ -228,6 +260,9 @@ def listener():
     '''
     Starts the web server and a listener for map updates.
     '''
+    app.config['state'] = "start"
+    t = timer()
+    app.config['timer'] = t
     if NO_ROBOT:
         app.config['NO_ROBOT'] = True
     else:
@@ -255,4 +290,3 @@ if __name__ == '__main__':
         rospy.on_shutdown(shutdownServer)
     listener()
     
-

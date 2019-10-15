@@ -25,6 +25,15 @@
         </div>
     </div>
     <div class="control" id="control">
+        <div style="padding-top: 100px;">
+        </div>
+        <div id="loading" v-if="mode == mode_enum.loading">
+          <center>
+            <div class="loader"></div>
+            <h2 class="my-5">${loading_msg}</h2>
+          </center>
+
+        </div>
         <div id="start"  v-if="mode == mode_enum.start">
             <div class="middle">
                 <center>
@@ -88,10 +97,9 @@
         <div id="pause" v-if="mode == mode_enum.pause">
         	<div class="row">
         		<div class="col-12">
-        			
 		        	<center>
 		        	<h2>Paused... ${runningTimer}</h2>
-		        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="startNav()"><i class="fas fa-play" style="color: #eee; padding-right: 5px;"></i>Resume</button>
+		        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="resumeNav()"><i class="fas fa-play" style="color: #eee; padding-right: 5px;"></i>Resume</button>
 		        	</center>
 		        	<div class="mapPreview">
 		               <center>
@@ -114,12 +122,46 @@
             </div>
         	
         </div>
-
+        <div id="end" v-if="mode == mode_enum.end">
+        	<div class="row">
+        		<div class="col-12">
+        			
+		        	<center>
+              <br><br>
+		        	<h2>Run Ended... ${runningTimer}</h2>
+		        	</center>
+		        	<div class="mapPreview">
+		               <center>
+		                    <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
+		                </center>
+		            </div>
+        		</div>
+        	</div>
+            <div class="row">
+            	<div class="col-md-4 offset-md-1 offset-lg-2">
+            		<center>
+            			<button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" @click="focusModal()" data-target="#saveConfirmmodalCenter">Save Run</button>
+            		</center>
+            	</div>
+            	<div class="col-md-4 offset-md-1 offset-lg-0">
+            		<center>
+            			<button type="button" class="btn btn-primary btn-lg cancel-btn" id="pause_button" @click="discardNav()">Discard Run</button>
+            		</center>
+            	</div>
+            </div>
+        	
+        </div>
 
     	
-    	<div class="navbar fixed-bottom">
-    		<a class="navbar-brand" style="font-size: 12px;"><div class="rhoeby-icon-small"></div>Powered by Rhoeby Dynamics</a>
-    		<span class="navbar-text">Connected</span>
+    	<div class="container-fluid fixed-bottom footer">
+        <div class="row">
+          <div class="col-sm-6 offset-sm-3">
+            <center>
+              <a  style="font-size: 12px;"><div class="rhoeby-icon-small"></div>Powered by Rhoeby Dynamics</a>
+            </center>
+
+          </div>
+        </div>
     	</div>
 
     </div>
@@ -180,12 +222,12 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body">
-    
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" @click="deleteData(itemToDelete)" data-dismiss="modal">Delete ${itemToDelete}</button>
-            </div>
+              <br>
+              <br>
+              <center>
+                <button type="button" class="btn btn-primary red-btn" @click="deleteData(itemToDelete)" data-dismiss="modal" style="margin-top: 20px;">Delete ${itemToDelete}</button>
+              </center>
+        
           </div>
         </div>
       </div>

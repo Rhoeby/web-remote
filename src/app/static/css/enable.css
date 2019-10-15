@@ -70,3 +70,11 @@ a{
 .red-btn:hover{
 	background-color: #f44;
 }
+
+.footer{
+	display: inline;
+	background-color: #eee;
+}
+.loader{
+	border-top: 16px solid #3498db; /* Blue */
+}

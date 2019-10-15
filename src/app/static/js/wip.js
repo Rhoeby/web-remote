@@ -7,17 +7,21 @@ var app = new Vue({
     robot_name: null,
     mapImg: "/latestMap.jpg",
     mode_enum: {
-        start: 0,
-        run: 1,
-        pause: 2,
+        loading: 0,
+        start: 1,
+        run: 2,
+        pause: 3,
+        end: 4,
     },
-    mode: 0,
+    mode: -1,
     past_runs: [],
     timerBase: 0,
     timerStarted: null,
+    refreshRunData: false,
     imageRefreshRate: 1000,
     locationNameInput: "",
     itemToDelete: "",
+    loading_msg: "Loading...",
 
   },
   computed: {
@@ -39,17 +43,16 @@ var app = new Vue({
   methods: {
     startNav: function(){
         $.get("/startNavigation")
-        var self = this
-        this.timerStarted = Date.now()
-        this.mode = this.mode_enum.run
-        var updateTimer = function() {
-            self.runningTimer = msToTime(self.timerBase + Date.now() - self.timerStarted)
-            setTimeout(()=>{
-                if (self.timerStarted) updateTimer()
-            }, 250)
-        }
-        updateTimer()
+        this.refreshRunData = true;
+        this.mode = this.mode_enum.loading
+        updateRunInfo(this)
     },
+    resumeNav: function(){
+      $.get("/resumeNavigation")
+      this.timerStarted = Date.now()
+      this.mode = this.mode_enum.run
+      updateRunInfo(this)
+  },
     pauseNav: function(){
         $.get("/pauseNavigation")
         this.timerBase = this.timerBase + Date.now() - this.timerStarted
@@ -86,6 +89,7 @@ var app = new Vue({
             self.past_runs = data.past_runs
             self.robot_name = data.robot_name
         })
+        updateRunInfo(this)
     },
     previewVideo: function(run){
       previewSource = '/static/data/'+ run.name + '/video.mp4'
@@ -108,6 +112,55 @@ var app = new Vue({
     this.loadData()
   }
 })
+
+function updateRunInfo (self){
+  $.get("/navigationStatus", function(data){
+    console.log(data)
+    if (self.mode == -1){
+      console.log(data.state)
+      self.mode = self.mode_enum[data.state]
+      self.timerBase = data.deltaTime
+      self.runningTimer = msToTime(self.timerBase)
+    }
+    self.timerBase = data.deltaTime
+    if (self.mode == self.mode_enum.run){
+      self.runningTimer = msToTime(self.timerBase)
+      if(data.loading){
+        self.mode = self.mode_enum.loading
+      }
+      else{
+        self.mode = self.mode_enum.run
+      }
+    }
+
+    //data finished loading
+    if (self.mode == self.mode_enum.loading){
+      if(!data.loading){
+        self.mode = self.mode_enum[data.state]
+        self.timerBase = data.deltaTime
+      }
+    }
+    
+    if (data.run_ended){
+      self.timerBase = self.timerBase + Date.now() - self.timerStarted
+      self.timerStarted = null
+      self.mode = self.mode_enum.end
+    }
+
+    if (data.loading_msg)
+      self.loading_msg = data.loading_msg
+
+    
+    if (self.mode == self.mode_enum.start || self.mode == self.mode_enum.start){
+      self.refreshRunData = false
+    }
+    else self.refreshRunData = true
+    
+    setTimeout(()=>{
+        if (self.refreshRunData) updateRunInfo(self)
+    }, 250)
+  })
+}
 
 function msToTime(s) {
   var ms = s % 1000;
