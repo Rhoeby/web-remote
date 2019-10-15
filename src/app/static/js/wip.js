@@ -46,7 +46,7 @@ var app = new Vue({
         this.refreshRunData = true;
         this.mode = this.mode_enum.loading
         //wait a second for data to propigate before reloading
-        $.setTimeout(function(){
+        setTimeout(function(){
           updateRunInfo(this)
         }, 150)
     },
