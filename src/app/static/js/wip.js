@@ -69,13 +69,16 @@ var app = new Vue({
     },
     saveNav: function(){
         var self=this
+        self.refreshRunData = false;
+        self.mode = self.mode_enum.loading
+        self.loading_msg = "Saving Video..."
         $.get("/saveNavigation", {
             location: self.locationNameInput,
         }, function(){
-          this.locationNameInput = ""
-          this.timerBase = 0;
-          this.mode = this.mode_enum.start
-          this.loadData()
+          self.locationNameInput = ""
+          self.timerBase = 0;
+          self.mode = self.mode_enum.start
+          self.loadData()
         })
     },
     discardNav: function(){
