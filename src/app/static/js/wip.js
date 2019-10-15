@@ -46,8 +46,9 @@ var app = new Vue({
         this.refreshRunData = true;
         this.mode = this.mode_enum.loading
         //wait a second for data to propigate before reloading
+        var self = this
         setTimeout(function(){
-          updateRunInfo(this)
+          updateRunInfo(self)
         }, 150)
     },
     resumeNav: function(){
