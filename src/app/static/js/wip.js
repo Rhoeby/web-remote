@@ -21,7 +21,7 @@ var app = new Vue({
     imageRefreshRate: 1000,
     locationNameInput: "",
     itemToDelete: "",
-    loading_msg: "Loading...",
+    loading_msg: "",
 
   },
   computed: {
@@ -45,7 +45,10 @@ var app = new Vue({
         $.get("/startNavigation")
         this.refreshRunData = true;
         this.mode = this.mode_enum.loading
-        updateRunInfo(this)
+        //wait a second for data to propigate before reloading
+        $.setTimeout(function(){
+          updateRunInfo(this)
+        }, 150)
     },
     resumeNav: function(){
       $.get("/resumeNavigation")
