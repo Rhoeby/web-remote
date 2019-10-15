@@ -122,24 +122,44 @@ def resume_nav():
 
 @app.route('/navigationStatus/')
 def nav_Status():
-    loading_msg = "Warming up the Robot..."
+    print("NAV STATUS: CURRENT STATE", current_app.config['state'])
+    loading_msg = "Loading..."
 
-    if not current_app.config['NO_ROBOT']:
+    if current_app.config['NO_ROBOT']:
+        #simulate the robot startup up
+        if current_app.config['state'] == "run" and current_app.config['loading']:
+            if "sim_delay" in current_app.config:
+                current_app.config["sim_delay"] += 1
+                loading_msg = "Warming up the Robot... (" + str(current_app.config["sim_delay"]) + ")"
+                if current_app.config["sim_delay"] > 4:
+                    current_app.config["loading"] = False
+                    current_app.config["sim_delay"] = 0
+
+            else:
+                current_app.config["sim_delay"] = 0
+        if current_app.config['state'] == "pause" and current_app.config['loading']:
+            if "sim_delay" in current_app.config:
+                current_app.config["sim_delay"] += 1
+                loading_msg = "Discarding run... (" + str(current_app.config["sim_delay"]) + ")"
+                if current_app.config["sim_delay"] > 4:
+                    current_app.config["state"] = "start"
+                    current_app.config["loading"] = False
+                    current_app.config["sim_delay"] = 0
+
+    else:
         #robot control code goes here
+        if current_app.config['state'] == "run" and current_app.config['loading']:
+            loading_msg = "Warming up the Robot..."
+        if current_app.config['state'] == "pause" and current_app.config['loading']:
+            loading_msg = "Discarding run..."
+        
         pass
-
-    if current_app.config['run_ended']:
-        current_app.config['state'] = "end"
-
-
 
     return jsonify({
         "state": current_app.config['state'],
         "loading": current_app.config['loading'],
-        "run_ended": current_app.config['run_ended'],
         "loading_msg": loading_msg,
-        "timerStarted": current_app.config['timer'].startTimeStamp(),
-        "deltaTime": current_app.config['timer'].get_current_time(),
+        "elapsed_time": current_app.config['timer'].get_current_time(),
     })
 
 @app.route('/saveNavigation/')
@@ -210,7 +230,7 @@ def save_nav():
 def discard_nav():
     current_app.config['timer'].stop()
     print("DISCARD NAV")
-    current_app.config['state'] = "start"
+    current_app.config['loading'] = True
     
     # JJ 
     if not current_app.config['NO_ROBOT']:

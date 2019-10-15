@@ -26,10 +26,17 @@ def callback(data):
     if data.data == "stopped":
         print("====================================================")
         print("Robot finished exploring... browser should go to the 'Run Completed' page!")
-        app.config['run_ended'] = True
+        #if the robot is running and stops on its own
+        if app.config['state'] == "run":
+            app.config['state'] = "end"
 
-    if data.data == "exploring":
+        #if the robot was manually stopped
+        if app.config['state'] == "pause":
+            app.config['state'] = "start"
+
+    if data.data == "exploring" and app.config["loading"]:
         app.config['loading'] = False
+        app.config['timer'].reset()
 
 class timer:
     def __init__(self):

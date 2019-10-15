@@ -2,7 +2,6 @@ var app = new Vue({
   el: '#app',
   delimiters: ['${', '}'],
   data: {
-    runningTimer: 0,
     battery_percentage: null,
     robot_name: null,
     mapImg: "/latestMap.jpg",
@@ -15,8 +14,7 @@ var app = new Vue({
     },
     mode: -1,
     past_runs: [],
-    timerBase: 0,
-    timerStarted: null,
+    elapsedTime: 0,
     refreshRunData: false,
     imageRefreshRate: 1000,
     locationNameInput: "",
@@ -33,6 +31,9 @@ var app = new Vue({
         if (this.battery_percentage > 10) return "fas fa-battery-quarter"
         return "fas fa-battery-empty"
     },
+    runningTimer: function(){
+      return msToTime(this.elapsedTime)
+    }
   },
   created: function(){
     var self = this
@@ -53,14 +54,11 @@ var app = new Vue({
     },
     resumeNav: function(){
       $.get("/resumeNavigation")
-      this.timerStarted = Date.now()
       this.mode = this.mode_enum.run
       updateRunInfo(this)
   },
     pauseNav: function(){
         $.get("/pauseNavigation")
-        this.timerBase = this.timerBase + Date.now() - this.timerStarted
-        this.timerStarted = null
         this.mode = this.mode_enum.pause
     },
     focusModal: function(){
@@ -76,15 +74,19 @@ var app = new Vue({
             location: self.locationNameInput,
         }, function(){
           self.locationNameInput = ""
-          self.timerBase = 0;
+          self.elapsedTime = 0;
           self.mode = self.mode_enum.start
           self.loadData()
         })
     },
     discardNav: function(){
-        $.get("/discardNavigation")
-        this.timerBase = 0;
-        this.mode = this.mode_enum.start
+      var self = this
+        $.get("/discardNavigation", function(){
+          self.elapsedTime = 0;
+          self.mode = self.mode_enum.loading
+          self.loading_msg = ""
+          self.loadData()
+        })
     },
 
     loadData: function(){
@@ -123,15 +125,14 @@ var app = new Vue({
 function updateRunInfo (self){
   $.get("/navigationStatus", function(data){
     console.log(data)
+    self.elapsedTime = data.elapsed_time
+
     if (self.mode == -1){
       console.log(data.state)
       self.mode = self.mode_enum[data.state]
-      self.timerBase = data.deltaTime
-      self.runningTimer = msToTime(self.timerBase)
     }
-    self.timerBase = data.deltaTime
+
     if (self.mode == self.mode_enum.run){
-      self.runningTimer = msToTime(self.timerBase)
       if(data.loading){
         self.mode = self.mode_enum.loading
       }
@@ -144,15 +145,14 @@ function updateRunInfo (self){
     if (self.mode == self.mode_enum.loading){
       if(!data.loading){
         self.mode = self.mode_enum[data.state]
-        self.timerBase = data.deltaTime
       }
     }
-    
-    if (data.run_ended){
-      self.timerBase = self.timerBase + Date.now() - self.timerStarted
-      self.timerStarted = null
+
+    /*
+    if (data.state){
       self.mode = self.mode_enum.end
     }
+    */
 
     if (data.loading_msg)
       self.loading_msg = data.loading_msg
@@ -170,6 +170,7 @@ function updateRunInfo (self){
 }
 
 function msToTime(s) {
+  s = s* 1000
   var ms = s % 1000;
   s = (s - ms) / 1000;
   var secs = s % 60;
