@@ -87,7 +87,7 @@ def start_nav():
     print("START NAV")
     current_app.config['state'] = "run"
     current_app.config['timer'].reset()
-    current_app.config['loading'] = False
+    current_app.config['loading'] = True
 
     if not current_app.config['NO_ROBOT']:
         # JJ
