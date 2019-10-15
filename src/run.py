@@ -60,7 +60,7 @@ class timer:
         return temptime.total_seconds()
         
     def startTimeStamp(self):
-        return self.startTime.timestamp() if self.startTime is not None else None
+        return (self.startTime-datetime.datetime(1970,1,1)).total_seconds() if self.startTime is not None else None
     def deltaTimeStamp(self):
         return self.deltaTime.total_seconds() if self.deltaTime is not None else 0
 
