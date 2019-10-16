@@ -91,17 +91,14 @@ def start_nav():
 
     if not current_app.config['NO_ROBOT']:
         # JJ
-        if current_app.config['controller'].get_paused() == True:
-            print("Robot controller was PAUSED, unpausing now")
-            current_app.config['controller'].set_paused(False)
-        else:
-            print ("Robot controller was NOT PAUSED, starting explore_process now")
-            devnull = open('/dev/null', 'w')
-            #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh"], stdout=devnull, shell=False)
-            # JJ - fast - reverted
-            current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
-            #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)    return jsonify({})
+        devnull = open('/dev/null', 'w')
+        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh"], stdout=devnull, shell=False)
+        # JJ - fast - reverted
+        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
+        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)    return jsonify({})
+
     return jsonify({})
+
 @app.route('/pauseNavigation/')
 def pause_nav():
     print("PAUSE NAV")
@@ -118,6 +115,13 @@ def resume_nav():
     current_app.config['timer'].resume()
     current_app.config['state'] = "run"
     print("RESUME NAV!")
+
+    if current_app.config['controller'].get_paused() == True:
+        print("Robot controller was PAUSED, unpausing now")
+        current_app.config['controller'].set_paused(False)
+    else:
+        print ("Robot controller was NOT PAUSED!")
+
     return jsonify({})
 
 @app.route('/navigationStatus/')
@@ -166,6 +170,7 @@ def nav_Status():
 def save_nav():
     current_app.config['timer'].stop()
     current_app.config['state'] = "start"
+    current_app.config['run_ended'] = False
     location = request.args.get("location")
     print("SAVE NAV", location)
     
