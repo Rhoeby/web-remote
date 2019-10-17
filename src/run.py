@@ -20,12 +20,10 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 def callback(data):
-    print("Got explore_status message")
-    print (data.data)
-    print(datetime.datetime.now())
+    # JJ - minimal useful print
+    print("Got explore_status message: " + data.data)
+    #print(datetime.datetime.now())
     if data.data == "stopped":
-        print("====================================================")
-        print("Robot finished exploring... browser should go to the 'Run Completed' page!")
         #if the robot is running and stops on its own
         if app.config['state'] == "run":
             app.config['state'] = "end"
@@ -33,6 +31,10 @@ def callback(data):
         #if the robot was manually stopped
         if app.config['state'] == "pause":
             app.config['state'] = "start"
+
+        # JJ - discard nav scenario (from either browser-invoked "End" or robot-invoked "stopped")
+        #if app.config['state'] == "start" and app.config["loading"]:
+        app.config['loading'] = False
 
     if data.data == "exploring" and app.config["loading"]:
         app.config['loading'] = False
@@ -77,6 +79,9 @@ def listener():
     app.config['timer'] = timer()
     app.config['loading'] = False
     app.config['run_ended'] = False
+    # JJ - anti-spew
+    app.config['prev_state'] = app.config['state']
+
     if NO_ROBOT:
         app.config['NO_ROBOT'] = True
     else:
