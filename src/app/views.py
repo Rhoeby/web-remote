@@ -1,9 +1,9 @@
 # A very simple Flask Hello World app for you to get started with...
 
 import subprocess, signal, os, time, json, zipfile, shutil, datetime
-#from moviepy.video.io.VideoFileClip import VideoFileClip
 
-# JJ - app is run from home directory, so we need the path to be relative to that
+# JJ
+import tarfile
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 STATIC_PATH = os.path.join(ROOT_PATH, "static")
@@ -89,6 +89,9 @@ def start_nav():
     current_app.config['timer'].reset()
     current_app.config['loading'] = True
 
+    # JJ - anti-spew
+    current_app.config['prev_state'] = current_app.config['state']
+
     if not current_app.config['NO_ROBOT']:
         # JJ
         devnull = open('/dev/null', 'w')
@@ -126,7 +129,14 @@ def resume_nav():
 
 @app.route('/navigationStatus/')
 def nav_Status():
+    # JJ - anti-spew - reverted
     print("NAV STATUS: CURRENT STATE", current_app.config['state'])
+    '''
+    if current_app.config['state'] != current_app.config['prev_state']:
+        print(datetime.datetime.now())
+        current_app.config['prev_state'] = current_app.config['state']
+    '''
+
     loading_msg = "Loading..."
 
     if current_app.config['NO_ROBOT']:
@@ -180,45 +190,18 @@ def save_nav():
         kill_explore()
 
     #wait for the file to appear in the /static/temp
-# JJ - app is run from home directory, so we need the path to be relative to that
-#    TEMP_PATH = "app/static/temp/latestRun"
     LATEST_RUN_PATH = os.path.join(TEMP_PATH, "latestRun")
     searching = True
     timeout = 0
     while searching:
         if "video.mp4" in os.listdir(LATEST_RUN_PATH):
-            '''
-            JJ
-            file = VideoFileClip(LATEST_RUN_PATH + "/video.mp4")
-            data = {"runningTime": file.duration}
-            with open(LATEST_RUN_PATH + '/info.json', 'w') as f:
-                json.dump(data, f)
-            
-            #close moviePy file
-            del file.reader
-            del file
-            
-            #copy data to new directory
-            print("Copying data...")
-            shutil.copytree(LATEST_RUN_PATH, DATA_PATH + "/" + location)
-            #delete files from temp folder
-            for file in os.listdir(LATEST_RUN_PATH):
-                os.unlink(LATEST_RUN_PATH + "/" + file)
-            
-            '''
-            data = {"runningTime": 15.00}
-            with open(LATEST_RUN_PATH + '/info.json', 'w') as f:
-                json.dump(data, f)
-
-            #copy data to new directory
-            print("Copying data...")
-            shutil.copytree(LATEST_RUN_PATH, DATA_PATH + "/" + location)
-            #delete files from temp folder
-            for file in os.listdir(LATEST_RUN_PATH):
-                os.unlink(LATEST_RUN_PATH + "/" + file)
-
-            # JJ - copy the map
-            shutil.copy(STATIC_PATH +  "/img/map.jpg", DATA_PATH + "/" + location)
+            os.mkdir(DATA_PATH + "/" + location)
+            # JJ
+            shutil.move(LATEST_RUN_PATH + "/video.mp4", DATA_PATH + "/" + location + "/video.mp4")
+            shutil.move(LATEST_RUN_PATH + "/coords.txt", DATA_PATH + "/" + location + "/coords.txt")
+            shutil.move(LATEST_RUN_PATH + "/info.json", DATA_PATH + "/" + location + "/info.json")
+            shutil.move(LATEST_RUN_PATH + "/map.pgm", DATA_PATH + "/" + location + "/map.pgm")
+            shutil.move(LATEST_RUN_PATH + "/map.yaml", DATA_PATH + "/" + location + "/map.yaml")
 
             searching = False
         else:
@@ -235,13 +218,18 @@ def save_nav():
 def discard_nav():
     current_app.config['timer'].stop()
     print("DISCARD NAV")
-    current_app.config['loading'] = True
+    # JJ - if robot stopped the run itself, then don't wait for a 'stopped' callback (from the 'explore_status' subscriber)
+    if current_app.config['state'] != "end":
+        current_app.config['loading'] = True
+    else:
+        current_app.config['state'] = "start"
     
     # JJ 
     if not current_app.config['NO_ROBOT']:
         current_app.config['controller'].set_paused(False)
         kill_explore()
 
+    print("discarded Nav!")
     return jsonify({})
 
 @app.route('/downloadFiles/')
@@ -255,11 +243,16 @@ def downloadFiles():
         name = "data"
         path = DATA_PATH 
     print("DOWNLOAD", name)
-    # JJ
-    #shutil.make_archive("app/static/temp/data", 'zip', path)
-    shutil.make_archive("catkin_ws/src/web_remote/src/app/static/temp/data", 'zip', path)
-
-    return send_file("static/temp/data.zip", as_attachment=True, attachment_filename=name + ".zip")
+    # JJ - don't compress large video files, add only required files
+    #shutil.make_archive("catkin_ws/src/web_remote/src/app/static/temp/data", 'zip', path)
+    #return send_file("static/temp/data.zip", as_attachment=True, attachment_filename=name + ".zip")
+    tar = tarfile.open(TEMP_PATH + "/data.tar", "w")
+    tar.add(path + "/video.mp4", arcname="video.mp4")
+    tar.add(path + "/map.pgm", arcname="map.pgm")
+    tar.add(path + "/map.yaml", arcname="map.yaml")
+    tar.add(path + "/coords.txt", arcname="coords.txt")
+    tar.close()
+    return send_file(TEMP_PATH + "/data.tar", as_attachment=True, attachment_filename=name + ".tar")
 
 @app.route("/deleteData/")
 def deleteData():

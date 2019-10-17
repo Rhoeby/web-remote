@@ -70,6 +70,7 @@ var app = new Vue({
         self.refreshRunData = false;
         self.mode = self.mode_enum.loading
         self.loading_msg = "Saving Video..."
+
         $.get("/saveNavigation", {
             location: self.locationNameInput,
         }, function(){
@@ -153,15 +154,20 @@ function updateRunInfo (self){
       self.mode = self.mode_enum.end
     }
     */
+    /* JJ - handle scenario where robot ends the run */
+    if (data.state == "end"){
+      self.mode = self.mode_enum.end
+    }
 
     if (data.loading_msg)
       self.loading_msg = data.loading_msg
-
     
     if (self.mode == self.mode_enum.start || self.mode == self.mode_enum.start){
       self.refreshRunData = false
     }
-    else self.refreshRunData = true
+    else {
+      self.refreshRunData = true
+    }
     
     setTimeout(()=>{
         if (self.refreshRunData) updateRunInfo(self)
