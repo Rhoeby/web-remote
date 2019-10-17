@@ -96,9 +96,11 @@ def start_nav():
         # JJ
         devnull = open('/dev/null', 'w')
         #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh"], stdout=devnull, shell=False)
-        # JJ - fast - reverted
-        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
-        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)    return jsonify({})
+        # JJ - fast
+        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
+        # JJ - anti-spew
+        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)
+        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], stdout=devnull, shell=False)
 
     return jsonify({})
 
@@ -129,13 +131,13 @@ def resume_nav():
 
 @app.route('/navigationStatus/')
 def nav_Status():
-    # JJ - anti-spew - reverted
+    # JJ - anti-spew
+    '''
     print("NAV STATUS: CURRENT STATE", current_app.config['state'])
     '''
     if current_app.config['state'] != current_app.config['prev_state']:
         print(datetime.datetime.now())
         current_app.config['prev_state'] = current_app.config['state']
-    '''
 
     loading_msg = "Loading..."
 
