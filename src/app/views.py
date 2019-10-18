@@ -93,13 +93,11 @@ def start_nav():
     current_app.config['prev_state'] = current_app.config['state']
 
     if not current_app.config['NO_ROBOT']:
-        # JJ
-        devnull = open('/dev/null', 'w')
-        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh"], stdout=devnull, shell=False)
         # JJ - fast
         #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
-        # JJ - anti-spew
+        # JJ - fast, anti-spew
         #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)
+        devnull = open('/dev/null', 'w')
         current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], stdout=devnull, shell=False)
 
     return jsonify({})
@@ -238,33 +236,48 @@ def discard_nav():
 def downloadFiles():
     
     name = request.args.get("run")
+    tar = tarfile.open(TEMP_PATH + "/data.tar", "w")
+    
     if name is not None:
         print("name")
         path = DATA_PATH + "/" + name 
+        tar.add(path + "/video.mp4", arcname="video.mp4")
+        tar.add(path + "/map.pgm", arcname="map.pgm")
+        tar.add(path + "/map.yaml", arcname="map.yaml")
+        tar.add(path + "/coords.txt", arcname="coords.txt")
     else:
         name = "data"
         path = DATA_PATH 
-    print("DOWNLOAD", name)
-    # JJ - don't compress large video files, add only required files
-    #shutil.make_archive("catkin_ws/src/web_remote/src/app/static/temp/data", 'zip', path)
-    #return send_file("static/temp/data.zip", as_attachment=True, attachment_filename=name + ".zip")
-    tar = tarfile.open(TEMP_PATH + "/data.tar", "w")
-    tar.add(path + "/video.mp4", arcname="video.mp4")
-    tar.add(path + "/map.pgm", arcname="map.pgm")
-    tar.add(path + "/map.yaml", arcname="map.yaml")
-    tar.add(path + "/coords.txt", arcname="coords.txt")
+        tar.add(path, arcname="data")
+    
     tar.close()
+    
+    print("DOWNLOAD", name)
+    
     return send_file(TEMP_PATH + "/data.tar", as_attachment=True, attachment_filename=name + ".tar")
 
 @app.route("/deleteData/")
 def deleteData():
     
+    # JJ - fix "Delete All"
+    '''
     name = request.args.get("name")
     print("DELETE", name)
     shutil.rmtree(DATA_PATH + "/" + name)
+    '''
+    name = request.args.get("name")
+    if name == 'All':
+        fileList = os.listdir(DATA_PATH)
+        for fileName in fileList:
+            if os.path.isdir(DATA_PATH + "/" + fileName):
+                shutil.rmtree(DATA_PATH + "/" + fileName)
+    elif name is not None:
+        shutil.rmtree(DATA_PATH + "/" + name)
+
+    print("DELETE", name)
+
     return jsonify({})
    
-
 @app.route('/latestMap.jpg')
 def latestMap():
     path = "static/img/map.jpg"

@@ -50,7 +50,8 @@
                         <a href="/downloadFiles/">
                             <i class="fas fa-download"></i> Download All
                         </a>
-                        <a href="#" style="padding-left: 10px;">
+                        <!-- JJ - add Delete All support -->
+                        <a href="#" data-toggle="modal" data-target="#deleteModal" @click="itemToDelete='All'" style="padding-left: 30px;">
                             <i class="fas fa-trash"></i> Delete All
                         </a>
                     </div>
@@ -63,7 +64,7 @@
                               <th scope="row">${ run.name }</th>
                               <td>${run.date} / ${run.length}</td>
                               <td>
-                              	<a href="#"  data-toggle="modal" data-target="#videoPreviewModal" @click="previewVideo(run)">
+                                <a href="#"  data-toggle="modal" data-target="#videoPreviewModal" @click="previewVideo(run)">
                                     <i class="fas fa-play"></i>
                                 </a>
                                 <a  :href="'/downloadFiles?run=' + run.name" download="map.png" target="blank" style="padding-left: 30px;">
@@ -95,65 +96,65 @@
             </div>
         </div>
         <div id="pause" v-if="mode == mode_enum.pause">
-        	<div class="row">
-        		<div class="col-12">
-		        	<center>
-		        	<h2>Paused... ${runningTimer}</h2>
-		        	<button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="resumeNav()"><i class="fas fa-play" style="color: #eee; padding-right: 5px;"></i>Resume</button>
-		        	</center>
-		        	<div class="mapPreview">
-		               <center>
-		                    <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
-		                </center>
-		            </div>
-        		</div>
-        	</div>
             <div class="row">
-            	<div class="col-md-4 offset-md-1 offset-lg-2">
-            		<center>
-            			<button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" @click="focusModal()" data-target="#saveConfirmmodalCenter">End Run & Save</button>
-            		</center>
-            	</div>
-            	<div class="col-md-4 offset-md-1 offset-lg-0">
-            		<center>
-            			<button type="button" class="btn btn-primary btn-lg cancel-btn" id="pause_button" @click="discardNav()">End Run & Discard</button>
-            		</center>
-            	</div>
+                <div class="col-12">
+                    <center>
+                    <h2>Paused... ${runningTimer}</h2>
+                    <button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="resumeNav()"><i class="fas fa-play" style="color: #eee; padding-right: 5px;"></i>Resume</button>
+                    </center>
+                    <div class="mapPreview">
+                       <center>
+                            <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
+                        </center>
+                    </div>
+                </div>
             </div>
-        	
+            <div class="row">
+                <div class="col-md-4 offset-md-1 offset-lg-2">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" @click="focusModal()" data-target="#saveConfirmmodalCenter">End Run & Save</button>
+                    </center>
+                </div>
+                <div class="col-md-4 offset-md-1 offset-lg-0">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg cancel-btn" id="pause_button" @click="discardNav()">End Run & Discard</button>
+                    </center>
+                </div>
+            </div>
+            
         </div>
         <div id="end" v-if="mode == mode_enum.end">
-        	<div class="row">
-        		<div class="col-12">
-        			
-		        	<center>
-              <br><br>
-		        	<h2>Run Ended... ${runningTimer}</h2>
-		        	</center>
-		        	<div class="mapPreview">
-		               <center>
-		                    <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
-		                </center>
-		            </div>
-        		</div>
-        	</div>
             <div class="row">
-            	<div class="col-md-4 offset-md-1 offset-lg-2">
-            		<center>
-            			<button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" @click="focusModal()" data-target="#saveConfirmmodalCenter">Save Run</button>
-            		</center>
-            	</div>
-            	<div class="col-md-4 offset-md-1 offset-lg-0">
-            		<center>
-            			<button type="button" class="btn btn-primary btn-lg cancel-btn" id="pause_button" @click="discardNav()">Discard Run</button>
-            		</center>
-            	</div>
+                <div class="col-12">
+                    
+                    <center>
+              <br><br>
+                    <h2>Run Ended... ${runningTimer}</h2>
+                    </center>
+                    <div class="mapPreview">
+                       <center>
+                            <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/>
+                        </center>
+                    </div>
+                </div>
             </div>
-        	
+            <div class="row">
+                <div class="col-md-4 offset-md-1 offset-lg-2">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" @click="focusModal()" data-target="#saveConfirmmodalCenter">Save Run</button>
+                    </center>
+                </div>
+                <div class="col-md-4 offset-md-1 offset-lg-0">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg cancel-btn" id="pause_button" @click="discardNav()">Discard Run</button>
+                    </center>
+                </div>
+            </div>
+            
         </div>
 
-    	
-    	<div class="container-fluid fixed-bottom footer">
+        
+        <div class="container-fluid fixed-bottom footer">
         <div class="row">
           <div class="col-sm-6 offset-sm-3">
             <center>
@@ -162,7 +163,7 @@
 
           </div>
         </div>
-    	</div>
+        </div>
 
     </div>
 </div>
@@ -179,10 +180,10 @@
         </button>
       </div>
       <div class="modal-body">
-		  <div class="form-group">
-		    <label for="location">Location Name</label>
-		    <input type="text" v-on:keyup.enter="saveNav()" class="form-control" id="locationName" v-model="locationNameInput" aria-describedby="locationHelp" placeholder="Enter location Name">
-		  </div>
+          <div class="form-group">
+            <label for="location">Location Name</label>
+            <input type="text" v-on:keyup.enter="saveNav()" class="form-control" id="locationName" v-model="locationNameInput" aria-describedby="locationHelp" placeholder="Enter location Name">
+          </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-dismiss="modal" @click="saveNav()">Save changes</button>
