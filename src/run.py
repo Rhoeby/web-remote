@@ -37,8 +37,9 @@ def callback(data):
         app.config['loading'] = False
 
     if data.data == "exploring" and app.config["loading"]:
-        app.config['loading'] = False
-        app.config['timer'].reset()
+        if app.config['state'] != "pause":
+            app.config['loading'] = False
+            app.config['timer'].reset()
 
 class timer:
     def __init__(self):
