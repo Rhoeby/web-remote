@@ -92,13 +92,20 @@ def start_nav():
     # JJ - anti-spew
     current_app.config['prev_state'] = current_app.config['state']
 
+    # JJ  - clear out any stale data
+    LATEST_RUN_PATH = os.path.join(TEMP_PATH, "latestRun")
+    fileList = os.listdir(LATEST_RUN_PATH)
+    for fileName in fileList:
+        if not os.path.isdir(LATEST_RUN_PATH + "/" + fileName):
+            os.remove(LATEST_RUN_PATH + "/" + fileName)
+
     if not current_app.config['NO_ROBOT']:
         # JJ - fast
         #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
-        # JJ - fast, anti-spew
-        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)
-        devnull = open('/dev/null', 'w')
-        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], stdout=devnull, shell=False)
+        # JJ - fast, anti-spew - reverted
+        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)
+        #devnull = open('/dev/null', 'w')
+        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], stdout=devnull, shell=False)
 
     return jsonify({})
 
@@ -163,7 +170,9 @@ def nav_Status():
     else:
         #robot control code goes here
         if current_app.config['state'] == "run" and current_app.config['loading']:
-            loading_msg = "Warming up the Robot..."
+            # JJ - more serious nessage ;-)
+            #loading_msg = "Warming up the Robot..."
+            loading_msg = "Building initial map..."
         if current_app.config['state'] == "pause" and current_app.config['loading']:
             loading_msg = "Discarding run..."
         
@@ -189,10 +198,10 @@ def save_nav():
         current_app.config['controller'].set_paused(False)
         kill_explore()
 
-    #wait for the file to appear in the /static/temp
-    LATEST_RUN_PATH = os.path.join(TEMP_PATH, "latestRun")
+    #wait for the files to appear in the /static/temp
     searching = True
     timeout = 0
+    LATEST_RUN_PATH = os.path.join(TEMP_PATH, "latestRun")
     while searching:
         if "video.mp4" in os.listdir(LATEST_RUN_PATH):
             os.mkdir(DATA_PATH + "/" + location)
@@ -207,10 +216,11 @@ def save_nav():
         else:
             print("Waiting for video.mp4...")
             timeout = timeout + 1
-            if timeout > 10:
+            if timeout > 30:
                 print("Timed out waiting for video.mp4!")
                 searching = False
             time.sleep(1.0)
+
     print("saved Nav!")
     return jsonify({})
     
