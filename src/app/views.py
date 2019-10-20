@@ -10,7 +10,7 @@ STATIC_PATH = os.path.join(ROOT_PATH, "static")
 DATA_PATH = os.path.join(ROOT_PATH, "static/data")
 TEMP_PATH = os.path.join(ROOT_PATH, "static/temp")
 
-from flask import render_template, send_file, request, jsonify, current_app, request
+from flask import render_template, send_file, request, jsonify, current_app, request, redirect
 from app import app
     
 def shutdown_server():
@@ -32,7 +32,7 @@ def index():
 
 @app.route('/wip/')
 def wip():
-    return render_template("wip.html")
+    return redirect("/")
 
 
 @app.route('/keyPressed/')
@@ -155,7 +155,7 @@ def nav_Status():
             if "sim_delay" in current_app.config:
                 current_app.config["sim_delay"] += 1
                 loading_msg = "Warming up the Robot... (" + str(current_app.config["sim_delay"]) + ")"
-                if current_app.config["sim_delay"] > 4:
+                if current_app.config["sim_delay"] > 20:
                     current_app.config["loading"] = False
                     current_app.config["sim_delay"] = 0
 

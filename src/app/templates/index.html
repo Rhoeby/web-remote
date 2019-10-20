@@ -1,50 +1,281 @@
 {% extends "base.html" %} {% block head %}
-<script src="{{ url_for('static', filename = 'js/main.js')}}"></script>
-<script src="{{ url_for('static', filename = 'js/main.js')}}"></script>
-<link href="{{ url_for('static', filename = 'css/enable.css')}}" />
 <meta name="viewport" content="width=device-width height=device-height, initial-scale=1">
+<link href="{{ url_for('static', filename = 'css/enable.css')}}" rel="stylesheet">
 {% endblock %} {% block title %}Rhoeby Remote{% endblock %} {% block body %}
 
 <div class="watermark">
     <img src="{{ url_for('static', filename = 'img/watermark.png')}}" style="max-height: 70vh; opacity: 0.5;">
 </div>
-
-<div class="main container" id="main">
+<div id="app">
+<div class="main-container container">
     <div class="title">
-        <center>
-            <img src="{{ url_for('static', filename = 'img/text.png')}}" class="header-img">
-		<img src="" id="map_img" alt="Unable To Load Map Image"/>
-            <h5 class="d-none d-md-block">All key presses on this page are sent to the python backend (app/views.py)</h5>
-        </center>
         <div class="row">
-        	<div class="col-md-4">
-        		<center>
-        			<button type="button" class="btn btn-primary btn-lg" id="start_button">Start Navigation</button>
-        		</center>
-        	</div>
-        	<div class="col-md-4">
-        		<center>
-        			<button type="button" class="btn btn-primary btn-lg" id="stop_button">Stop Navigation</button>
-        		</center>
-        	</div>
-        	<div class="col-md-4">
-        		<center>
-        			<a id="download_button" href="/downloadFiles/" download="map.png" target="blank">
-        				<button type="button" class="btn btn-primary btn-lg" >Download Files</button>
-        			</a>
-        			
-        		</center>
-        	</div>
+            <div class="col-4">
+				<a href="#" data-toggle="modal" data-target="#powerModal">
+					<i class="fas fa-power-off" style="font-size: 50px;"></i>
+				</a>
+            </div>
+            <div class="col-4 header-img" style=" ">
+            </div>
+            <div class="col-4">
+                <div class="float-right">
+                    
+                    <i :class="battery" style="font-size: 50px;"></i>
+                    <p>${battery_percentage}%</p>
+                </div>
+            </div>
         </div>
-        <br>
-        <div class="footer">
-        	<h5>2019, Rhoeby</h5>
+    </div>
+    <div class="control" id="control">
+        <div style="padding-top: 20px;">
         </div>
+        <div id="loading" v-if="mode == mode_enum.loading">
+          <center>
+            <div class="loader"></div>
+			<h2 class="my-5">${loading_msg}</h2>
+			<div class="progress" v-if="loadingStartedTime && estimatedLoadingTime">
+				<div class="progress-bar" role="progressbar" :style="'width: ' + loadingPercentage + '%'" :aria-valuenow="loadingPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+			</div>
+          </center>
+
+        </div>
+        <div id="start"  v-if="mode == mode_enum.start">
+            <div class="middle">
+                <center>
+                    <button type="button" @click="startNav" class="btn btn-primary btn-lg">Start Navigation</button>
+                </center>
+            </div>
+            <br>
+            <div class="bottom">
+                <div class="row">
+                    <div class="col-4 col-md-3">
+                        <p class="bold">Captured Runs (${past_runs.length}):</p>
+                    </div>
+                    <div class="col-5 offset-3 col-md-4 offset-md-5">
+                        <a href="/downloadFiles/">
+                            <i class="fas fa-download"></i> Download All
+                        </a>
+                        <!-- JJ - add Delete All support -->
+                        <a href="#" data-toggle="modal" data-target="#deleteModal" @click="itemToDelete='All'" style="padding-left: 30px;">
+                            <i class="fas fa-trash"></i> Delete All
+                        </a>
+                    </div>
+                </div>
+                <!-- template for vue.js -->
+                <div class="row">
+                    <table class="table">
+                        <tbody>
+                            <tr v-for="run in past_runs">
+                              <th scope="row">${ run.name }</th>
+                              <td>${run.date} / ${run.length}</td>
+                              <td>
+                                <a href="#"  data-toggle="modal" data-target="#videoPreviewModal" @click="previewVideo(run)">
+                                    <i class="fas fa-play"></i>
+                                </a>
+                                <a  :href="'/downloadFiles?run=' + run.name" download="map.png" target="blank" style="padding-left: 30px;">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <a href="#" data-toggle="modal" data-target="#deleteModal" @click="itemToDelete=run.name" style="padding-left: 30px;">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                              </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="run"  v-if="mode == mode_enum.run">
+            <div class="middle">
+                <center>
+                    <h2 id="timer">Running... ${runningTimer}</h2>
+                    <button type="button" class="btn btn-primary btn-lg red-btn" id="pause_button" @click="pauseNav()"><i class="fas fa-pause" style="color: #eee; padding-right: 5px;"></i>Pause Navigation</button>
+                </center>
+            </div>
+
+            <div class="bottom">
+               <center>
+                    <!-- JJ <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/> -->
+                    <img :src="mapImg" class="map-img" id="map_img" alt="Loading Map Image..."/>
+                </center>
+            </div>
+        </div>
+        <div id="pause" v-if="mode == mode_enum.pause">
+            <div class="row">
+                <div class="col-12">
+                    <center>
+                    <h2>Paused... ${runningTimer}</h2>
+                    <button type="button" class="btn btn-primary btn-lg" id="pause_button" @click="resumeNav()"><i class="fas fa-play" style="color: #eee; padding-right: 5px;"></i>Resume</button>
+                    </center>
+                    <div class="mapPreview">
+                       <center>
+                            <!-- JJ <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/> -->
+                            <img :src="mapImg" class="map-img" id="map_img" alt="Loading Map Image..."/>
+                        </center>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 offset-md-1 offset-lg-2">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" @click="focusModal()" data-target="#saveConfirmmodalCenter">End Run & Save</button>
+                    </center>
+                </div>
+                <div class="col-md-4 offset-md-1 offset-lg-0">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg cancel-btn" id="pause_button" @click="discardNav()">End Run & Discard</button>
+                    </center>
+                </div>
+            </div>
+            
+        </div>
+        <div id="end" v-if="mode == mode_enum.end">
+            <div class="row">
+                <div class="col-12">
+                    
+                    <center>
+              <br><br>
+                    <h2>Run Ended... ${runningTimer}</h2>
+                    </center>
+                    <div class="mapPreview">
+                       <center>
+                            <!-- JJ <img :src="mapImg" class="map-img" id="map_img" alt="Unable To Load Map Image"/> -->
+                            <img :src="mapImg" class="map-img" id="map_img" alt="Loading Map Image..."/>
+                        </center>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 offset-md-1 offset-lg-2">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg confirm-btn" id="pause_button" data-toggle="modal" @click="focusModal()" data-target="#saveConfirmmodalCenter">Save Run</button>
+                    </center>
+                </div>
+                <div class="col-md-4 offset-md-1 offset-lg-0">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-lg cancel-btn" id="pause_button" @click="discardNav()">Discard Run</button>
+                    </center>
+                </div>
+            </div>
+            
+        </div>
+		<div id="end" v-if="mode == mode_enum.off">
+			<br><br><br><br>
+			<center>
+				<p>
+					The Robot is Powered off. Reload this page if the robot is turned back on.
+				</p>
+			</center>
+		</div>
         
+        <div class="container-fluid fixed-bottom footer">
+        <div class="row">
+          <div class="col-sm-6 offset-sm-3">
+            <center>
+              <a  style="font-size: 12px;"><div class="rhoeby-icon-small"></div>Powered by Rhoeby Dynamics</a>
+            </center>
+
+          </div>
+          <div class="col-sm-3">
+              <p class="text-right fixed-bottom" style="padding-right: 10px;"><small>
+                <span v-if="robot_name == null">Not Connected</span>
+                <span v-else >${robot_name}</span>
+              </small> </p>
         
-    
+          </div>
+        </div>
+        </div>
+
     </div>
 </div>
 
 
+<!-- Modal -->
+<div class="modal fade" id="saveConfirmmodalCenter" tabindex="-1" role="dialog" aria-labelledby="saveConfirmmodalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="saveConfirmmodalLongTitle">Some Additional Info...</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+            <label for="location">Location Name</label>
+            <input type="text" v-on:keyup.enter="saveNav()" class="form-control" id="locationName" v-model="locationNameInput" aria-describedby="locationHelp" placeholder="Enter location Name">
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="saveNav()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="videoPreviewModal" tabindex="-1" role="dialog" aria-labelledby="videoPreviewModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Video Preview</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+
+            <div align="center" class="embed-responsive embed-responsive-16by9" id="player">
+               
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirm Delete</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+              <br>
+              <br>
+              <center>
+                <button type="button" class="btn btn-primary red-btn" @click="deleteData(itemToDelete)" data-dismiss="modal" style="margin-top: 20px;">Delete ${itemToDelete}</button>
+              </center>
+        
+          </div>
+        </div>
+	  </div>
+	  
+	  <div class="modal fade" id="powerModal" tabindex="-1" role="dialog" aria-labelledby="powerTitle" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title">Are you sure that you want to power off?</h5>
+				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				  </button>
+				</div>
+				  <br>
+				  <br>
+				  <center>
+					<button type="button" class="btn btn-primary red-btn" @click="powerOff" data-dismiss="modal" style="margin-top: 20px;">Power Off Robot</button>
+				  </center>
+			
+			  </div>
+			</div>
+		  </div>
+      
+
+</div>
+</body>
+<script src="{{ url_for('static', filename = 'js/main.js')}}"></script>
 {% endblock %}
