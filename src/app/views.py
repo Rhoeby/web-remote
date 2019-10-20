@@ -66,7 +66,7 @@ def loadData():
    
     data = {
         'battery_percentage': 88,
-        'robot_name': "turty3_pro",
+        'robot_name': "SIMULATION MODE" if current_app.config['NO_ROBOT'] else "turty3_pro",
         'past_runs': []
     }
     for folder in os.listdir(DATA_PATH):
