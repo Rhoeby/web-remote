@@ -103,9 +103,12 @@ def start_nav():
         # JJ - fast
         #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record"], shell=False)
         # JJ - fast, anti-spew - reverted
-        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)
+        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], shell=False)
         #devnull = open('/dev/null', 'w')
         #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore_fast.sh", "record"], stdout=devnull, shell=False)
+        # JJ - not fast, no_stdin
+        current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "record", "no_stdin"], shell=False)
+        #current_app.config['explore_process'] = subprocess.Popen(["./mini_turty_explore.sh", "no_stdin"], shell=False)
 
     return jsonify({})
 
@@ -172,7 +175,7 @@ def nav_Status():
         if current_app.config['state'] == "run" and current_app.config['loading']:
             # JJ - more serious nessage ;-)
             #loading_msg = "Warming up the Robot..."
-            loading_msg = "Building initial map..."
+            loading_msg = "Building initial map... please wait"
         if current_app.config['state'] == "pause" and current_app.config['loading']:
             loading_msg = "Discarding run..."
         
